@@ -17,21 +17,65 @@ apiRoute.post(async (req, res) => {
   const messageFolder = '/wesele2025_melanze';
   const message = req.body.message;
 
+  const CHUNK_SIZE = 8 * 1024 * 1024; // 8 MB
+
   try {
     // Upload zdjęć i filmów
     if (req.files.length > 0) {
       await Promise.all(req.files.map(async (file) => {
         const dropboxPath = `${folder}/${namePrefix}${file.originalname}`;
-        await dbx.filesUpload({
-          path: dropboxPath,
-          contents: file.buffer,
-          mode: 'add',
-          autorename: true,
-        });
+        const buffer = file.buffer;
+        const fileSize = buffer.length;
+
+        if (fileSize <= 150 * 1024 * 1024) {
+          // Mały plik — standardowy upload
+          await dbx.filesUpload({
+            path: dropboxPath,
+            contents: buffer,
+            mode: 'add',
+            autorename: true,
+          });
+        } else {
+          // Duży plik — upload sesyjny
+          const sessionStart = await dbx.filesUploadSessionStart({
+            close: false,
+            contents: buffer.slice(0, CHUNK_SIZE),
+          });
+
+          let cursor = {
+            session_id: sessionStart.result.session_id,
+            offset: CHUNK_SIZE,
+          };
+
+          while (cursor.offset < fileSize) {
+            const chunk = buffer.slice(cursor.offset, cursor.offset + CHUNK_SIZE);
+
+            if ((cursor.offset + CHUNK_SIZE) >= fileSize) {
+              // Ostatnia część
+              await dbx.filesUploadSessionFinish({
+                cursor,
+                commit: {
+                  path: dropboxPath,
+                  mode: { '.tag': 'add' },
+                  autorename: true,
+                },
+                contents: chunk,
+              });
+            } else {
+              // Kolejna część
+              await dbx.filesUploadSessionAppendV2({
+                cursor,
+                close: false,
+                contents: chunk,
+              });
+              cursor.offset += CHUNK_SIZE;
+            }
+          }
+        }
       }));
     }
 
-    // Upload wiadomości melanżowej jako plik tekstowy do osobnego folderu
+    // Upload wiadomości melanżowej jako plik tekstowy
     if (message && message.trim() !== '') {
       const messageContent = `${message.trim()}\n`;
       const messageName = `${namePrefix}melanz.txt`;
@@ -48,7 +92,7 @@ apiRoute.post(async (req, res) => {
     res.status(200).json({ message: 'Files uploaded' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Upload failed' });
+    res.status(500).json({ error: err.message || 'Upload failed' });
   }
 });
 
@@ -59,3 +103,4 @@ export const config = {
 };
 
 export default apiRoute;
+
