@@ -20,7 +20,12 @@ apiRoute.post(async (req, res) => {
   const CHUNK_SIZE = 8 * 1024 * 1024; // 8 MB
 
   try {
-    // Upload zdjęć i filmów
+    console.log('FILES:', req.files?.map(f => ({
+      originalname: f.originalname,
+      mimetype: f.mimetype,
+      size: f.buffer.length
+    })));
+
     if (req.files.length > 0) {
       await Promise.all(req.files.map(async (file) => {
         const dropboxPath = `${folder}/${namePrefix}${file.originalname}`;
@@ -51,7 +56,6 @@ apiRoute.post(async (req, res) => {
             const chunk = buffer.slice(cursor.offset, cursor.offset + CHUNK_SIZE);
 
             if ((cursor.offset + CHUNK_SIZE) >= fileSize) {
-              // Ostatnia część
               await dbx.filesUploadSessionFinish({
                 cursor,
                 commit: {
@@ -62,7 +66,6 @@ apiRoute.post(async (req, res) => {
                 contents: chunk,
               });
             } else {
-              // Kolejna część
               await dbx.filesUploadSessionAppendV2({
                 cursor,
                 close: false,
@@ -75,7 +78,6 @@ apiRoute.post(async (req, res) => {
       }));
     }
 
-    // Upload wiadomości melanżowej jako plik tekstowy
     if (message && message.trim() !== '') {
       const messageContent = `${message.trim()}\n`;
       const messageName = `${namePrefix}melanz.txt`;
@@ -91,7 +93,7 @@ apiRoute.post(async (req, res) => {
 
     res.status(200).json({ message: 'Files uploaded' });
   } catch (err) {
-    console.error(err);
+    console.error('UPLOAD ERROR:', err);
     res.status(500).json({ error: err.message || 'Upload failed' });
   }
 });
@@ -99,6 +101,7 @@ apiRoute.post(async (req, res) => {
 export const config = {
   api: {
     bodyParser: false,
+    externalResolver: true,
   },
 };
 
