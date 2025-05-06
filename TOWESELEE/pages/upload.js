@@ -10,7 +10,7 @@ export default function Upload() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!files.length) {
-      setStatus('Wybierz co najmniej jeden plik.');
+      setStatus('Wybierz swoje zdjęcia i filmy!.');
       return;
     }
 
@@ -40,7 +40,7 @@ export default function Upload() {
   return (
     <div className="min-h-screen bg-beige flex flex-col items-center justify-center text-center p-6 animate-fade-in">
       <h1 className="text-2xl font-bold mb-2 animate-slide-in">Mamy nadzieję, ze Twoja galeria jest pełna zdjęć i filmów!</h1>
-      <h2 className="text-2xl font-bold mb-2 animate-slide-in">Pamiętaj, aby przesłać również coś nowego, gdy stworzysz nowe kadry :D!</h2>
+      <h2 className="text-lg font-light italic text-gray-600">Pamiętaj, aby przesłać również później coś nowego!</h2>
 
       <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-4 w-full max-w-md">
         <input
