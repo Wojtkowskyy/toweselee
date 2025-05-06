@@ -41,7 +41,7 @@ apiRoute.post(async (req, res) => {
             autorename: true,
           });
         } else {
-          // Duży plik — upload sesyjny
+          // Duży plik — sesyjny upload
           const sessionStart = await dbx.filesUploadSessionStart({
             close: false,
             contents: buffer.slice(0, CHUNK_SIZE),
@@ -106,4 +106,3 @@ export const config = {
 };
 
 export default apiRoute;
-
