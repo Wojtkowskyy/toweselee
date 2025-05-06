@@ -52,40 +52,43 @@ export default function Upload() {
 
     setStatus('Wysyłanie...');
   };
-  
+
   return (
     <div className="min-h-screen bg-beige flex flex-col items-center justify-center text-center p-6 animate-fade-in">
-      <h1 className="text-2xl font-bold mb-2 animate-slide-in">Mamy nadzieję, ze Twoja galeria jest pełna zdjęć i filmów!</h1>
+      <h1 className="text-2xl font-bold mb-2 animate-slide-in">
+        Mamy nadzieję, że Twoja galeria jest pełna zdjęć i filmów!
+      </h1>
       <h2 className="text-lg font-light italic text-gray-600 mb-4">
-  Pamiętaj, aby przesłać również później coś nowego!
-</h2>
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-4 w-full max-w-md">
-      <input type="file" multiple onChange={(e) => setFiles([...e.target.files])} />
-      <input
-        type="text"
-        placeholder="Twoje imię i nazwisko"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <textarea
-        placeholder="Wiadomość dla Pary Młodej"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-      />
-      <button type="submit" className="bg-black text-white px-4 py-2 rounded">Wyślij</button>
+        Pamiętaj, aby przesłać również później coś nowego!
+      </h2>
 
-      {progress > 0 && (
-        <div className="w-full bg-gray-200 rounded h-4">
-          <div
-            className="bg-green-500 h-4 rounded"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      )}
+      <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-4 w-full max-w-md">
+        <input type="file" multiple onChange={(e) => setFiles([...e.target.files])} />
+        <input
+          type="text"
+          placeholder="Twoje imię i nazwisko"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <textarea
+          placeholder="Wiadomość dla Pary Młodej"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        />
+        <button type="submit" className="bg-black text-white px-4 py-2 rounded">Wyślij</button>
 
-      <p>{status}</p>
-    </form>
+        {progress > 0 && (
+          <div className="w-full bg-gray-200 rounded h-4">
+            <div
+              className="bg-green-500 h-4 rounded"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
+
+        <p>{status}</p>
+      </form>
+    </div>
   );
 }
 
