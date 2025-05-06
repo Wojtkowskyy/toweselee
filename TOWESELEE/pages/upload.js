@@ -85,7 +85,6 @@ export default function Upload() {
             />
           </div>
         )}
-
         <p>{status}</p>
       </form>
     </div>
